@@ -16,24 +16,31 @@ where Action: ValidatableAction, Field == Action.Field, State == Action.State, S
 
     var validate: (Field, State, inout State.ValidationErrors) -> Void
 
+    struct FormValidityID {}
+    
+    @Dependency(\.mainQueue) var mainQueue
+    
     public func reduce(
         into state: inout State,
         action: Action
     ) -> EffectTask<Action> {
-        if let fieldToValidate = (/Action.validate).extract(from: action) {
-            validate(fieldToValidate, state, &state.errors)
+        if let validationAction = (/Action.validation).extract(from: action) {
+            switch validationAction {
+            case .validate(let field):
+                validate(field, state, &state.errors)
+                
+            case .checkFormValidity:
+                var errors = State.ValidationErrors()
+                for field in Field.allCases {
+                    validate(field, state, &errors)
+                }
+                state.isValid = errors.isValid
+            }
 
         } else if (/Action.binding).extract(from: action) != nil {
-            var errors = State.ValidationErrors()
-            for field in Field.allCases {
-
-                validate(field, state, &errors)
-            }
-            state.isValid = errors.isValid
+            return .task { .validation(.checkFormValidity) }.debounce(id: FormValidityID.self, for: 1, scheduler: mainQueue)
         }
-
-
-
+        
         return .none
     }
 }

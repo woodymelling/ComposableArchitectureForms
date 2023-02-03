@@ -54,7 +54,7 @@ struct FormValidationViewModifier<State: ValidatableState, Action: ValidatableAc
                     .focused($isFocused)
                     .onChange(of: isFocused) { isFocused in
                         if !isFocused {
-                            viewStore.send(.validate(field))
+                            viewStore.send(.validation(.validate(field)))
                         } else {
                             viewStore.send(.focus(.enteredFocus(field)))
                         }
@@ -64,7 +64,7 @@ struct FormValidationViewModifier<State: ValidatableState, Action: ValidatableAc
                     }
                     .onChange(of: TypeErasedEquatable(value: viewStore.state[keyPath: field.fieldDataLocation.value])) { _ in
                         if let keyPath = field.fieldDataLocation.error, viewStore.state.errors[keyPath: keyPath] != nil {
-                            viewStore.send(.validate(field))
+                            viewStore.send(.validation(.validate(field)))
                         }
                     }
                     .onSubmit {
