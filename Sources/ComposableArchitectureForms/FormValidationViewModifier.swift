@@ -73,7 +73,7 @@ struct FormValidationViewModifier<State: ValidatableState, Action: ValidatableAc
                     .submitLabel(submitLabel)
 
                 if let keyPath = field.fieldDataLocation.error, let errorMessage = viewStore.state.errors[keyPath: keyPath] {
-                    FormStyle.errorMessageView(errorMessage)
+                    Forms.errorMessageView(errorMessage)
                 }
             }
         }

@@ -38,7 +38,10 @@ where Action: ValidatableAction, Field == Action.Field, State == Action.State, S
             }
 
         } else if (/Action.binding).extract(from: action) != nil {
-            return .task { .validation(.checkFormValidity) }.debounce(id: FormValidityID.self, for: 1, scheduler: mainQueue)
+            return .task {
+                .validation(.checkFormValidity)
+            }
+            .debounce(id: FormValidityID.self, for: Forms.debounceTime, scheduler: mainQueue)
         }
         
         return .none
