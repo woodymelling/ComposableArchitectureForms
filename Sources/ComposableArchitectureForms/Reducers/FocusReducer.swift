@@ -9,7 +9,7 @@ import Foundation
 import ComposableArchitecture
 
 public struct FocusReducer<State, Field, Action>: ReducerProtocol
-where Action: ValidatableAction, State.Field == Field, Action.Field == Field, State == Action.State, State: ValidatableState, Field: ValidatableField {
+where Action: FormAction, State.Field == Field, Action.Field == Field, State == Action.State, State: FormState, Field: FormField {
     public init() {}
 
     public func reduce(into state: inout State, action: Action) -> EffectTask<Action> {

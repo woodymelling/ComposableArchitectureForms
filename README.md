@@ -16,9 +16,9 @@ The Field enum in the FormReducer also represents the ordering of fields in the 
 import ComposableArchitectureForms
 
 struct Form: FormReducer {
-   struct State: ValidatableState { ... }
-   struct Action: ValidatableAction { ... }
-   enum Field: ValidatableField { ... }
+   struct State: FormState { ... }
+   struct Action: FormAction { ... }
+   enum Field: FormField { ... }
    static func validate(field: Field, state: State, errors: inout State.ValidationErrors) { ... }
    var formBody: some ReducerProtocol<State, Action> { ... }
 }
@@ -30,14 +30,14 @@ struct Form: FormReducer {
 ### Example Reducer:
 ```swift 
 struct ClientForm: FormReducer {
-    struct State: ValidatableState {
+    struct State: FormState {
         // This struct contains any error messages for the fields
         struct ValidationErrors: ValidationErrorCollection {
             var ageError: String?
             var emailError: String?
         }
         
-        // Form State required by ValidatableState protocol
+        // Form State required by FormState protocol
         var errors: ValidationErrors = .init()
         var isValid: Bool = false
         @BindingState var focusedField: Field?
@@ -48,8 +48,8 @@ struct ClientForm: FormReducer {
         @BindingState var age: Int = 0
     }
     
-    enum Action: ValidatableAction {
-        // These actions are required by the ValidatableAction protocol
+    enum Action: FormAction {
+        // These actions are required by the FormAction protocol
         case binding(_ action: BindingAction<State>)
         case validate(_ field: Field)
         case focus(_ action: FocusAction<Field>)
@@ -61,7 +61,7 @@ struct ClientForm: FormReducer {
     // Define the fields that exist in the form.
     // The ordering of cases determines what field comes into focus when the "next" button is tapped on the keyboard
     // The last enum case will automatically get a "done" submit button instead of "next"
-    enum Field: ValidatableField {
+    enum Field: FormField {
         case name
         case email
         case age

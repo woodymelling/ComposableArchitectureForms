@@ -10,7 +10,7 @@ import ComposableArchitecture
 
 // MARK: FormReducer Protocols
 public protocol FormReducer<State, Action, Field>: ReducerProtocol
-where Action: ValidatableAction<Field>, State: ValidatableState {
+where Action: FormAction<Field>, State: FormState {
     associatedtype Field: CaseIterable, Hashable
     associatedtype FormBody: ReducerProtocol<State, Action>
 
@@ -20,7 +20,7 @@ where Action: ValidatableAction<Field>, State: ValidatableState {
     var formBody: FormBody { get }
 }
 
-public extension FormReducer where Action: ValidatableAction<Field>, State: ValidatableState, State == Action.State, Field == State.Field {
+public extension FormReducer where Action: FormAction<Field>, State: FormState, State == Action.State, Field == State.Field {
     var body: some ReducerProtocol<State, Action> {
         // Not sure why this is needed, was getting cryptic compile errors if I used @ReducerBuilder on here instead fo this combine
         CombineReducers {

@@ -9,7 +9,7 @@ import Foundation
 import ComposableArchitecture
 
 public struct ValidationReducer<State, Field, Action>: ReducerProtocol
-where Action: ValidatableAction, Field == Action.Field, State == Action.State, State: ValidatableState {
+where Action: FormAction, Field == Action.Field, State == Action.State, State: FormState {
     public init(validate: @escaping (Field,State, inout State.ValidationErrors) -> Void) {
         self.validate = validate
     }

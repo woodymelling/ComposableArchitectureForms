@@ -8,8 +8,8 @@
 import Foundation
 import ComposableArchitecture
 
-public protocol ValidatableState<Field>: Equatable {
-    associatedtype Field: ValidatableField
+public protocol FormState<Field>: Equatable {
+    associatedtype Field: FormField
     associatedtype ValidationErrors: ValidationErrorCollection
 
     var errors: ValidationErrors { get set }
@@ -17,8 +17,8 @@ public protocol ValidatableState<Field>: Equatable {
     var focusedField: Field? { get set }
 }
 
-
-struct FormField<Value: Equatable> {
-    @BindingState var value: Value
-    var errorMessage: String?
-}
+//
+//struct FormField<Value: Equatable> {
+//    @BindingState var value: Value
+//    var errorMessage: String?
+//}

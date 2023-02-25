@@ -9,7 +9,7 @@ import Foundation
 import SwiftUI
 import ComposableArchitecture
 
-struct FormValidationViewModifier<State: ValidatableState, Action: ValidatableAction>: ViewModifier where State.Field == Action.Field, Action.State == State, State.Field.State == State {
+struct FormValidationViewModifier<State: FormState, Action: FormAction>: ViewModifier where State.Field == Action.Field, Action.State == State, State.Field.State == State {
 
     var store: Store<State, Action>
     var field: State.Field
@@ -91,7 +91,7 @@ extension View {
     ///   - field: The FormReducer.Field that corresponds to the view this is attached to
     ///   - isForTextField: Allows for different view configuration based on whether this is for a textField or not
     ///   - submitLabel: Usually, the last Field will have a .done sumit label, and all others will have .next. Override that with this parameter
-    public func validation<State: ValidatableState, Action: ValidatableAction>(
+    public func validation<State: FormState, Action: FormAction>(
         _ store: Store<State, Action>,
         field: Action.Field,
         isForTextField: Bool = true,
