@@ -32,22 +32,26 @@ struct FormValidationViewModifier<State: ValidatableState, Action: ValidatableAc
         }
     }
 
-    struct FieldState {
-        var value: any Equatable
+    struct ViewState: Equatable {
+        var value: TypeErasedEquatable
         var errorMessage: String?
+        var focusedField: State.Field?
+        
+        init(_ state: State, field: State.Field) {
+            self.value = TypeErasedEquatable(value: state[keyPath: field.fieldDataLocation.value])
+            
+            if let errorMessageKeyPath = field.fieldDataLocation.error {
+                self.errorMessage = state.errors[keyPath: errorMessageKeyPath]
+            }
+            
+            self.focusedField = state.focusedField
+        }
     }
 
     func body(content: Content) -> some View {
         WithViewStore(
             store,
-            removeDuplicates: { old, new in
-                areEqual(
-                    first: old[keyPath: field.fieldDataLocation.value],
-                    second: new[keyPath: field.fieldDataLocation.value]
-                ) && field.fieldDataLocation.error.map { keyPath in
-                    old.errors[keyPath: keyPath] == new.errors[keyPath: keyPath]
-                } ?? true
-            }
+            observe: { ViewState.init($0, field: field) }
         ) { viewStore in
             VStack(alignment: .leading, spacing: isForTextField ? 0 : 5) {
                 content
@@ -62,8 +66,8 @@ struct FormValidationViewModifier<State: ValidatableState, Action: ValidatableAc
                     .onChange(of: viewStore.focusedField) {
                         isFocused = $0 == field
                     }
-                    .onChange(of: TypeErasedEquatable(value: viewStore.state[keyPath: field.fieldDataLocation.value])) { _ in
-                        if let keyPath = field.fieldDataLocation.error, viewStore.state.errors[keyPath: keyPath] != nil {
+                    .onChange(of: viewStore.value) { _ in
+                        if viewStore.errorMessage != nil {
                             viewStore.send(.validation(.validate(field)))
                         }
                     }
@@ -72,7 +76,7 @@ struct FormValidationViewModifier<State: ValidatableState, Action: ValidatableAc
                     }
                     .submitLabel(submitLabel)
 
-                if let keyPath = field.fieldDataLocation.error, let errorMessage = viewStore.state.errors[keyPath: keyPath] {
+                if let errorMessage = viewStore.errorMessage {
                     Forms.errorMessageView(errorMessage)
                 }
             }
